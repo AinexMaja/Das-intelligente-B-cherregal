@@ -21,10 +21,10 @@ def flashLED(positions, widths):
         widths = [widths]
         print(positions, widths)
     for position, width in zip(positions, widths):
-        index1 = position[0]/0.625
+        index1 = (position[0]+20.0)/0.625
         index1 = int(index1)
-        index2 = (position[0]+width[0])/0.625
+        index2 = (position[0]+20.0+width[0])/0.625
         index2 = int(index2)
         for i in range(index1, index2):
-            pixels[i] = (255,0,0)
+            pixels[i] = (255,0,255)
     pixels.show()
