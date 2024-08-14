@@ -2,22 +2,24 @@ import time
 from time import sleep
 import RPi.GPIO as GPIO
 
-
 # GPIO-Pin-Konfiguration
 DIR = 20       # Richtungs-Pin
 STEP = 21      # Schritt-Pin
 
 CW = 1         # Uhrzeigersinn (rechts)
 CCW = 0        # Gegen den Uhrzeigersinn (links)
-SPR = 200       # Schritte pro Umdrehung
+SPR = 200      # Schritte pro Umdrehung
+DIST_PER_REV_CM = 48.7  # Distanz pro Umdrehung in cm (abhängig von der Mechanik)
+
+# Berechnung der Umrechnung von Schritten in cm
+CM_PER_STEP = DIST_PER_REV_CM / SPR
 
 SWITCH_PIN_LEFT = 8   # Linker Limit-Switch Pin (normally closed)
 SWITCH_PIN_RIGHT = 16 # Rechter Limit-Switch Pin (normally closed)
 
-# Globale Variable für Motorposition
-motor_position = 0
+# Globale Variable für Motorposition in cm
 motor_position_cm = 0
-
+motor_position = 0
 
 # GPIO-Setup
 GPIO.setmode(GPIO.BCM)
@@ -41,57 +43,59 @@ def update_motor_position(direction, steps):
     print("Motorposition: " + str(motor_position_cm) + "cm")
 
 
-# Motor bewegt sich nach rechts und links, ändert Richtung, wenn Limit Switch berührt wird
-def move_motor(direction, speed):
+# Motor bewegen bis zur gewünschten Position
+def move_to_position(target_cm, speed):
+    global motor_position_cm
+    target_steps = int(target_cm / CM_PER_STEP)
+    direction = CW if target_cm < motor_position_cm else CCW
     GPIO.output(DIR, direction)  # Richtung setzen
+
     while True:
-        # Überprüfen, ob einer der Limit-Switches betätigt wurde
+        # Überprüfen, ob ein Limit-Switch betätigt wurde
         if GPIO.input(SWITCH_PIN_LEFT) == GPIO.HIGH:
             print("Linker Limit-Switch aktiviert, Richtung ändern")
-            sleep(1) # kurz warten
-            direction = CCW if direction == CW else CW  # Richtung ändern
-            GPIO.output(DIR, direction)  # Richtung setzen
-            print("Motor bewegt sich nach", "rechts" if direction == CCW else "links")
-            # kurzes Stück bewegen, damit Limit Sitch wieder deaktiviert ist
+            direction = CCW
+            GPIO.output(DIR, direction)
+            # Kurzes Stück bewegen
             for _ in range(20):
                 GPIO.output(STEP, GPIO.HIGH)
                 sleep(0.001)
                 GPIO.output(STEP, GPIO.LOW)
                 sleep(0.001)
-                # Position aktualisieren
-                update_motor_position(direction, 1)  # 1 Schritt
+                update_motor_position(direction, 1)
 
         if GPIO.input(SWITCH_PIN_RIGHT) == GPIO.HIGH:
             print("Rechter Limit-Switch aktiviert, Richtung ändern")
-            sleep(1)  # kurz warten
-            direction = CCW if direction == CW else CW  # Richtung ändern
-            GPIO.output(DIR, direction)  # Richtung setzen
-            print("Motor bewegt sich nach", "rechts" if direction == CCW else "links")
-            # kurzes Stück bewegen, damit Limit Sitch wieder deaktiviert ist
+            direction = CW
+            GPIO.output(DIR, direction)
+            # Kurzes Stück bewegen
             for _ in range(20):
                 GPIO.output(STEP, GPIO.HIGH)
                 sleep(0.001)
                 GPIO.output(STEP, GPIO.LOW)
                 sleep(0.001)
-                # Position aktualisieren
-                update_motor_position(direction, 1)  # 1 Schritt
+                update_motor_position(direction, 1)
         
-        # Bewegung, wenn kein Limit Switch gedrückt ist
+        # Schritt ausführen
         GPIO.output(STEP, GPIO.HIGH)
-        sleep(0.1 / speed) 
+        sleep(0.1 / speed)
         GPIO.output(STEP, GPIO.LOW)
         sleep(0.1 / speed)
-        # Position aktualisieren
-        update_motor_position(direction, 1)  # 1 Schritt
+        update_motor_position(direction, 1)
+        
+        # Überprüfen, ob das Ziel erreicht wurde
+        if direction == CW and motor_position_cm <= target_cm:
+            break
+        elif direction == CCW and motor_position_cm >= target_cm:
+            break
 
-# Endlosschleife zum kontinuierlichen Hin- und Herfahren
+# Benutzer zur Eingabe der Zielposition auffordern
 try:
-    direction = CW  # Start-Richtung (Rechts)
-    speed = 100     # Geschwindigkeit (Schritte pro Sekunde)
+    speed = 100  # Geschwindigkeit (Schritte pro Sekunde)
 
     while True:
-        print("Motor bewegt sich nach", "rechts" if direction == CCW else "links")
-        move_motor(direction, speed)  # Bewege den Motor in die aktuelle Richtung
+        target_cm = float(input("Gib die Zielposition in cm ein (oder 'q' zum Beenden): "))
+        move_to_position(target_cm, speed)
 
 except KeyboardInterrupt:
     print("Programm unterbrochen")
