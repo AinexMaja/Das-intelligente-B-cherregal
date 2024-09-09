@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="/static/main.css">
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <meta charset="UTF-8">
+  <title>Neues Buch hinzufügen</title>
+</head>
+
+<body>
+      <form action="/add" method="post">
+        <label for="isbn">ISBN:</label>
+        <input type="text" id="isbn" name="isbn" maxlength="13" minlength="10" oninput="search()" required><br>
+
+        <label for="title">Titel:</label>
+        <input type="text" id="title" name="title" required><br>
+
+        <label for="author">Autor:</label>
+        <input type="text" id="author" name="author"><br>
+
+        <label for="year">Erscheinungsjahr:</label>
+        <input type="number" id="year" name="year" min="1500" max="2030" step="1"><br>
+
+        <label for="genre">Genre:</label>
+        <input type="text" id="genre" name="genre"><br>
+
+        <label for="row">Reihe:</label>
+        <input type="number" id="row" name="row" step="1" min="1" required><br>
+
+        <label for="position">Position:</label>
+        <input type="number" id="position" name="position" step="0.01" min="0.00" required><br>
+
+        <label for="width">Breite:</label>
+        <input type="number" id="width" name="width" step="0.01" min="0.00"><br>
+
+        <input type="submit" value="Neues Buch hinzufügen" class="submit"><br>
+
+        <input type="hidden" id="formtype" name="formtype" value="add"> <!--verstecker Inputtyp, um Formulartyp zu prüfen-->
+      </form>
+
+      <!--Fehlermeldung, falls Buch schon in Datenbank existiert -->
+      {% if alreadyexists %}
+      <p>Buch existiert bereits</p>
+      {% endif %}
+
+      <img src="/static/covers/test.jpg" height="200">
+
+  <script>
+    function search() {
+      let isbn = document.getElementById("isbn").value;
+      if (isbn.length == 10 || isbn.length == 13) {
+        fetch("https://openlibrary.org/search.json?isbn=" + isbn + "&fields=key,author_name,editions,editions.key,editions.title,editions.publish_date,editions.cover_i,editions.subtitle", {
+          headers: {
+            "Accept": "application/json"
+          }
+        })
+          .then((response) => {
+            if (!response.ok) throw new Error("Server nicht erreichbar");
+            return response.json();
+          })
+          .then((data) => {
+            if (data.numFound == 0) {
+              console.warn("Kein passendes Buch in der Datenbank gefunden");
+              return
+            }
+            work = data.docs[0];
+            edition = work.editions.docs[0];
+            publish_date = edition.publish_date[0];
+
+            document.getElementById("title").value = edition.title + (edition.subtitle ? " - " + edition.subtitle : "");
+            document.getElementById("year").value = (new Date(publish_date)).getFullYear();
+            document.getElementById("author").value = work.author_name;
+          });
+      }
+    }
+  </script>
+</body>
+
+</html>

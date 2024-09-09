@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="/static/main.css">
+        <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+        <title>Bücher anzeigen</title>
+    </head>
+    <body>
+        <h1 class="bookoverview">Buchübersicht</h1>
+
+        <a href="/" class="back">Zurück zur Startseite</a>
+        {% if not all_books %}
+        <a href="/show_books" class="back">Alle Bücher anzeigen</a>
+        {% endif %}
+        
+        <!--Dropdownmenü für die Sortierung-->
+        <form action="/show_books" method="get" class="dropdown">
+
+            <!-- Suchparameter in versteckten Feldern beibehalten -->
+            <input type="hidden" name="title" value="{{ request.args.get('title', '') }}">
+            <input type="hidden" name="author" value="{{ request.args.get('author', '') }}">
+            <input type="hidden" name="genre" value="{{ request.args.get('genre', '') }}">
+            <input type="hidden" name="isbn" value="{{ request.args.get('isbn', '') }}">
+
+            <label for="sorting">Sortierung: </label> <br>
+            <select name="sorting" id="sorting" onchange="this.form.submit()">
+                <option value="title" {% if request.args.get('sorting', 'title') == 'title' %}selected{% endif %}>Titel</option>
+                <option value="author" {% if request.args.get('sorting', 'title') == 'author' %}selected{% endif %}>Autor</option>
+                <option value="position" {% if request.args.get('sorting', 'title') == 'position' %}selected{% endif %}>Position</option>
+                <option value="yearNew" {% if request.args.get('sorting', 'title') == 'yearNew' %}selected{% endif %}>Erscheinungsjahr: Neuste zuerst</option>
+                <option value="yearOld" {% if request.args.get('sorting', 'title') == 'yearOld' %}selected{% endif %}>Erscheinungsjahr: Älteste zuerst</option>
+            </select>
+        </form>
+
+        <table>
+            <thead> <!--Tabellenkopf-->
+                <tr>    <!--Neue Reihe-->
+                    <th>Titel</th>
+                    <th>Autor</th>
+                    <th>Erscheinungsjahr</th>
+                    <th>Genre</th>
+                    <th>ISBN</th>
+                    <th>Reihe</th>
+                    <th>Position</th>
+                    <th>Breite</th>
+                </tr>
+            </thead>
+            <tbody> <!--Tabellenkörper-->
+                {% for book in books %}
+                <tr>
+                    <td>{{ book[0] }}</td>
+                    <td>{{ book[1] }}</td>
+                    <td>{{ book[2] }}</td>
+                    <td>{{ book[3] }}</td>
+                    <td>{{ book[4] }}</td>
+                    <td>{{ book[5] }}</td>
+                    <td>{{ book[6] }}</td>
+                    <td>{{ book[7] }}</td>
+                    <td>
+                        <form action="/edit_book/{{ book[4] }}" method="get">
+                            <input type="submit" value="Bearbeiten" class="submit">
+                            <input type="hidden" name="isbn" value="{{ book[4] }}">
+                        </form>
+                    <td>
+                        <form action="/delete_book" method="post">
+                            <input type="submit" value="Löschen" class="submit">
+                            <input type="hidden" name="isbn" value="{{ book[4] }}">
+                        </form>
+                    </td>    
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not books %}
+                <tr>
+                    <td colspan="9" class="note">Bisher stehen noch keine Bücher in Deinem Regal</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </body>
+</html>
