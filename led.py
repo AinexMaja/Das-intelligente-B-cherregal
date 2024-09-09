@@ -3,7 +3,7 @@ import board
 import neopixel
 
 #Connection from Data In to the LED-Strip on Pin D18
-pixel_pin = board.D14
+pixel_pin = board.D21
 
 # The number of NeoPixels
 num_pixels = 796

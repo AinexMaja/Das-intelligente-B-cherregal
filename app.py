@@ -1,6 +1,7 @@
 import sqlite3
 import sqlite3
 from flask import Flask, jsonify, render_template, request, url_for, redirect, make_response
+from led import flashLED
 
 if __name__ == "__main__":
     con = sqlite3.connect("books.db", check_same_thread=False)
@@ -108,6 +109,12 @@ def show_books():
 
     if not books and not all_books:
         return redirect(url_for('search_book', nobook=True))
+    
+    '''# Aufrufen der LED-Funktion mit Positionen und Breiten der gefundenen Bücher
+    positions = [book[6] for book in books]  # Index 6 ist 'position'
+    widths = [book[7] for book in books]     # Index 7 ist 'width'
+    flashLED(positions, widths)  # LED blinken lassen
+    '''
 
     return render_template('show_books.html', books=books, all_books=all_books)
 
