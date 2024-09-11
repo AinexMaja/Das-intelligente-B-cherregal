@@ -1,7 +1,10 @@
 import sqlite3
 import sqlite3
 from flask import Flask, jsonify, render_template, request, url_for, redirect, make_response
-from led import flashLED
+from led import flashLED_async, clearLEDs_async
+from motor_control import move_async
+import numpy as np
+
 
 if __name__ == "__main__":
     con = sqlite3.connect("books.db", check_same_thread=False)
@@ -26,6 +29,7 @@ app = Flask(__name__)
 #Startseite
 @app.route('/')
 def index():
+    clearLEDs_async()
     return render_template('index.html')
 
 
@@ -72,6 +76,9 @@ def search_book():
 #Bücher anzeigen
 @app.route('/show_books', methods=['GET'])
 def show_books():
+    #clearLEDs_async()
+    print(request.args)
+    search = request.args.get('search', None)
     sort_by = request.args.get('sorting', 'title')  # Defaultwert der Sortierung ist Titel
     title = request.args.get('title', None)
     isbn = request.args.get('isbn', None)
@@ -110,18 +117,27 @@ def show_books():
     if not books and not all_books:
         return redirect(url_for('search_book', nobook=True))
     
-    '''# Aufrufen der LED-Funktion mit Positionen und Breiten der gefundenen Bücher
-    positions = [book[6] for book in books]  # Index 6 ist 'position'
-    widths = [book[7] for book in books]     # Index 7 ist 'width'
-    flashLED(positions, widths)  # LED blinken lassen
-    '''
+    if all_books:
+        clearLEDs_async()
+    else:
+        # Aufrufen der LED-Funktion mit Positionen und Breiten der gefundenen Bücher
+        positions = np.array(list([book[6]] for book in books))  # Jede Position wird zu einer Liste
+        widths = np.array(list([book[7]] for book in books))     # Jede Breite wird zu einer Liste
+        flashLED_async(positions, widths)
+        book_center = positions + 0.5*widths
+        if search:
+            move_async(book_center, 50)
 
-    return render_template('show_books.html', books=books, all_books=all_books)
+    
+
+
+    return render_template('show_books.html', books=books, all_books=all_books, search=search)
 
 
 #Buch löschen
 @app.route('/delete', methods=['POST'])
 def delete():
+    clearLEDs_async()
     isbn = request.form.get('isbn')
     if isbn:
         cur.execute(f"DELETE FROM books WHERE isbn = '{isbn}'")
@@ -153,6 +169,11 @@ def edit_book(isbn):
 
     #Aktuelle Buchdetails abrufen
     book = cur.execute("SELECT * FROM books WHERE isbn = ?", (isbn,)).fetchone()
+
+    if book:
+        # LED für das Buch aufleuchten lassen
+        flashLED_async([[book[6]]], [[book[7]]])  # Position und Breite an die LED-Funktion übergeben
+
     return render_template('edit_book.html', book=book)
 
 

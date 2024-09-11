@@ -25,7 +25,7 @@ GPIO.output(DIR, CW)
 GPIO.output(ENABLE, 0)
 
 # Anzahl der Schritte, die der Motor sich bewegen soll (z.B. 20 Schritte)
-step_count = 10
+step_count = 200
 
 # Verzögerung zwischen den Schritten (kann angepasst werden)
 delay = 0.001  # 10ms
