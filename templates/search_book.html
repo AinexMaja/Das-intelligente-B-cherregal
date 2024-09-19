@@ -8,6 +8,8 @@
   </head>
   <body>
     <p>Suche nach...</p>
+    
+    <!-- Form for searching books -->
     <form action="/show_books" method="get">
 
       <label for="title">Titel: </label>
@@ -22,10 +24,13 @@
       <label for="genre">Genre: </label>
       <input type="text" id="genre" name="genre"> <br>
 
+      <!-- Hidden input field to mark the form as a search action -->
       <input type="hidden" name="search" value="True">
 
       <input type="submit" value="Suchen" class="submit"><br>
     </form>
+
+    <!-- Message is displayed, if no book is found-->
     {% if nobook %}
     Kein passendes Buch gefunden
     {% endif %}

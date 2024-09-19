@@ -1,58 +1,72 @@
-/* Allgemeine Stile für die Webseite */
+/* General styles for the website */
 body {
     font-family: Arial, sans-serif;
     background-color: #f5f5f5;
     color: #333;
     text-align: center;
-    padding: 20px;  /*Innenabstand*/
+    padding: 20px;
     justify-content: center;
     align-items: center;
 }
 
+
+/* Headlines */
 h1 {
     font-size: 2.5em;
     color: #444;
 }
 
 
-/* Styling für die Buttons */
+/* Buttons */
 .button, .submit, .back {
-    text-decoration: none;  /*entfernt Unterstreichung*/
+    text-decoration: none;  /* Removes underline */
     background-color: #007bff;
     color: white;
-    padding: 15px 30px; /*15 = Innenabstand vertikal, 30 = Innenabstand horizontal*/
-    border-radius: 5px; /*abgerundete Ecken*/
+    padding: 15px 30px;
+    border-radius: 5px; /* Rounded corners */
     font-size: 1.2em;
-    transition: background-color 0.3s, transform 0.2s;  /*Änderungen werden animiert dargestellt (wenn sich die Hintegrundfarbe bzw. Skalierung ändert)*/
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);   /*erzeugt Schatten der Box*/
-    display: inline-block;  /*"display" kontrolliert wie Element innerhalb eines Layouts dargestellt wird*/
-    margin: 10px;   
+    transition: background-color 0.3s, transform 0.2s;  /* Changes are animated (for background color and scaling) */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: inline-block;  /* "display" controls how the element is shown in the layout */
+    margin: 10px;
 }
 
 .submit {
-    font-size:1em;
-    padding:5px 10px;
+    font-size: 1em;
+    padding: 5px 10px;
 }
 
 .back {
     float: left;
-    margin-left:0;
+    margin-left: 0;
 }
 
-.button:hover, .submit:hover, .back:hover {     /*Pseudoklasse: Wenn User über Button hoovert*/
+.button:hover, .submit:hover, .back:hover {  
     background-color: #0056b3;
     transform: scale(1.05);
 }
 
-.button:active, .submit:active, back:active {    /*Pseudoklasse: Wenn User Button anklickt*/
+.button:active, .submit:active, back:active {
     background-color: #004494;
+}
+
+
+/* Input fields in the form */
+input[type="text"], input[type="number"] {
+    font-family: Arial, sans-serif;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    padding: 8px;
+    margin-top: 10px;
 }
 
 form label, form input {
     margin: 5px;
 }
 
-/*Tabelle der Bücher*/
+
+/* Book table */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -65,6 +79,7 @@ th, td {
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
+/* Every second row is darker */
 tbody tr:nth-child(even) {
     background-color: #f9f9f953;
 }
@@ -73,11 +88,11 @@ tbody tr:nth-child(even) {
 .dropdown {
     display: flex;
     flex-direction: column;
-    align-items: flex-end; /* Align items to the right */
+    align-items: flex-end;
     margin-bottom: 10px;
 }
 
-/* Styling for the dropdown label */
+/* Dropdown label */
 label[for="sorting"] {
     font-weight: bold;
     font-size: 16px;
@@ -91,7 +106,7 @@ label[for="sorting"] {
 #sorting {
     font-size: 16px;
     padding: 8px;
-    border: 2px solid #ccc; /* Border */
+    border: 2px solid #ccc;
     border-radius: 4px;
     background-color: #f9f9f9;
     color: #333;
@@ -99,28 +114,15 @@ label[for="sorting"] {
     cursor: pointer;
     transition: border-color 0.3s ease, background-color 0.3s ease;
 }
-
 /* Hover effect for the dropdown */
 #sorting:hover {
     border-color: #888;
     background-color: #f0f0f0;
 }
 
-.nobooks {
-    margin-top: 50px;
-}
 
+/* no books in shelf note */
 .note {
     text-align: center;
     padding-top: 20px;
-}
-
-
-input[type="text"], input[type="number"] {
-    font-family: Arial, sans-serif;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    padding: 8px;
-    margin-top: 10px;
 }

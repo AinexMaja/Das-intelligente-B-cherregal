@@ -10,21 +10,23 @@
         <h1 class="bookoverview">Buchübersicht</h1>
 
         <a href="/" class="back">Zurück zur Startseite</a>
+        <!-- If not all books of the database are displayed show a button to display all books -->
         {% if not all_books %}
         <a href="/show_books" class="back">Alle Bücher anzeigen</a>
         {% endif %}
         
-        <!--Dropdownmenü für die Sortierung-->
         <form action="/show_books" method="get" class="dropdown">
 
-            <!-- Suchparameter in versteckten Feldern beibehalten -->
+            <!-- Keep search parameters in hidden fields so they persist after sorting -->
             <input type="hidden" name="title" value="{{ request.args.get('title', '') }}">
             <input type="hidden" name="author" value="{{ request.args.get('author', '') }}">
             <input type="hidden" name="genre" value="{{ request.args.get('genre', '') }}">
             <input type="hidden" name="isbn" value="{{ request.args.get('isbn', '') }}">
 
             <label for="sorting">Sortierung: </label> <br>
+            <!-- Dropdown menu with sorting options -->
             <select name="sorting" id="sorting" onchange="this.form.submit()">
+                <!-- Jinja conditional: check the current sorting parameter -->
                 <option value="title" {% if request.args.get('sorting', 'title') == 'title' %}selected{% endif %}>Titel</option>
                 <option value="author" {% if request.args.get('sorting', 'title') == 'author' %}selected{% endif %}>Autor</option>
                 <option value="position" {% if request.args.get('sorting', 'title') == 'position' %}selected{% endif %}>Position</option>
@@ -33,9 +35,10 @@
             </select>
         </form>
 
+        <!-- Table to display the books -->
         <table>
-            <thead> <!--Tabellenkopf-->
-                <tr>    <!--Neue Reihe-->
+            <thead>
+                <tr>
                     <th>Titel</th>
                     <th>Autor</th>
                     <th>Erscheinungsjahr</th>
@@ -46,7 +49,8 @@
                     <th>Breite</th>
                 </tr>
             </thead>
-            <tbody> <!--Tabellenkörper-->
+            <tbody>
+                <!-- Jinja for loop: iterate through the list 'books' -->
                 {% for book in books %}
                 <tr>
                     <td>{{ book[0] }}</td>
@@ -58,11 +62,13 @@
                     <td>{{ book[6] }}</td>
                     <td>{{ book[7] }}</td>
                     <td>
+                        <!-- Button to edit a book, based on its ISBN -->
                         <form action="/edit_book/{{ book[4] }}" method="get">
                             <input type="submit" value="Bearbeiten" class="submit">
                             <input type="hidden" name="isbn" value="{{ book[4] }}">
                         </form>
                     <td>
+                        <!-- Button to delete a book, based on its ISBN -->
                         <form action="/delete_book" method="post">
                             <input type="submit" value="Löschen" class="submit">
                             <input type="hidden" name="isbn" value="{{ book[4] }}">
@@ -71,6 +77,8 @@
                     </td>
                 </tr>
                 {% endfor %}
+
+                <!--Jinja conditional: Display a message if no books are found-->
                 {% if not books %}
                 <tr>
                     <td colspan="9" class="note">Bisher stehen noch keine Bücher in Deinem Regal</td>

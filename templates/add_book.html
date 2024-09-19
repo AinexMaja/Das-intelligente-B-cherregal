@@ -9,8 +9,10 @@
 </head>
 
 <body>
+      <!-- Form to enter book data -->
       <form action="/add" method="post">
         <label for="isbn">ISBN:</label>
+        <!-- Search function is called when input field changes -->
         <input type="text" id="isbn" name="isbn" maxlength="13" minlength="10" oninput="search()" required><br>
 
         <label for="title">Titel:</label>
@@ -36,25 +38,26 @@
 
         <input type="submit" value="Neues Buch hinzufügen" class="submit"><br>
 
-        <input type="hidden" id="formtype" name="formtype" value="add"> <!--verstecker Inputtyp, um Formulartyp zu prüfen-->
+        <input type="hidden" id="formtype" name="formtype" value="add"> <!-- Hidden inputfield, to check formtype -->
       </form>
 
-      <!--Fehlermeldung, falls Buch schon in Datenbank existiert -->
+      <!-- Error message if book already exists in database -->
       {% if alreadyexists %}
       <p>Buch existiert bereits</p>
       {% endif %}
 
-      <img src="/static/covers/test.jpg" height="200">
-
+  <!-- Fetch to Open Library API to retrieve book information -->
   <script>
     function search() {
       let isbn = document.getElementById("isbn").value;
+      // ISBN-10 or ISBN-13 is possible
       if (isbn.length == 10 || isbn.length == 13) {
         fetch("https://openlibrary.org/search.json?isbn=" + isbn + "&fields=key,author_name,editions,editions.key,editions.title,editions.publish_date,editions.cover_i,editions.subtitle", {
           headers: {
             "Accept": "application/json"
           }
         })
+        // Error, if response is unsuccessful
           .then((response) => {
             if (!response.ok) throw new Error("Server nicht erreichbar");
             return response.json();
@@ -64,10 +67,12 @@
               console.warn("Kein passendes Buch in der Datenbank gefunden");
               return
             }
+            // Save bookinformation in variables
             work = data.docs[0];
             edition = work.editions.docs[0];
             publish_date = edition.publish_date[0];
 
+            // Fill book data into the form
             document.getElementById("title").value = edition.title + (edition.subtitle ? " - " + edition.subtitle : "");
             document.getElementById("year").value = (new Date(publish_date)).getFullYear();
             document.getElementById("author").value = work.author_name;

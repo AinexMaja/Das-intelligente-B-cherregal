@@ -9,11 +9,13 @@
     <body>
         <h1>Buchübersicht</h1>
 
+        <!-- Link to go back to the homepage -->
         <a href="/" class="back">Zurück zur Startseite</a>
 
+        <!-- Table displaying book details for editing -->
         <table>
-            <thead> <!--Tabellenkopf-->
-                <tr>    <!--Neue Reihe-->
+            <thead>
+                <tr>
                     <th>Titel</th>
                     <th>Autor</th>
                     <th>Erscheinungsjahr</th>
@@ -24,8 +26,9 @@
                     <th>Breite</th>
                 </tr>
             </thead>
-            <tbody> <!--Tabellenkörper-->
+            <tbody>
                 <tr>
+                <!-- Form for editing the book data -->
                 <form action="/edit_book/{{ book[4] }}" method="post">
                     <td><label for="title">Titel:</label>
                         <input type="text" id="title" name="title" value="{{ book[0] }}" size="30" required>
