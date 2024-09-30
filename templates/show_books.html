@@ -69,7 +69,7 @@
                         </form>
                     <td>
                         <!-- Button to delete a book, based on its ISBN -->
-                        <form action="/delete_book" method="post">
+                        <form action="/delete_book" method="post" onsubmit="return confirmDelete();">
                             <input type="submit" value="Löschen" class="submit">
                             <input type="hidden" name="isbn" value="{{ book[4] }}">
                         </form>
@@ -86,5 +86,12 @@
                 {% endif %}
             </tbody>
         </table>
+
+        <script>
+            function confirmDelete() {
+                return confirm('Bist Du sicher, dass Du dieses Buch löschen möchtest?');
+            }
+        </script>
+
     </body>
 </html>

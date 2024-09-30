@@ -1,9 +1,9 @@
 import sqlite3
 import sqlite3
 from flask import Flask, jsonify, render_template, request, url_for, redirect, make_response
-from led import flashLED_async, clearLEDs_async
-from motor_control import move_async
-import numpy as np
+#from led import flashLED_async, clearLEDs_async
+#from motor_control import move_async
+#import numpy as np
 
 
 if __name__ == "__main__":
@@ -31,7 +31,7 @@ app = Flask(__name__)
 # Route for the homepage
 @app.route('/')
 def index():
-    clearLEDs_async()  # Turn off all LEDs when the homepage is accessed
+    #clearLEDs_async()  # Turn off all LEDs when the homepage is accessed
     return render_template('index.html')
 
 
@@ -123,17 +123,17 @@ def show_books():
     if not books and not all_books:
         return redirect(url_for('search_book', nobook=True))
     
-    if all_books:
-        clearLEDs_async()  # Turn off all LEDs when showing all books
-    else:
+    #if all_books:
+        #clearLEDs_async()  # Turn off all LEDs when showing all books
+    #else:
         # Calling the LED function with positions and widths of the books found
-        positions = np.array(list([book[6]] for book in books))  # Each position as a list
-        widths = np.array(list([book[7]] for book in books))     # Each width as a list
-        flashLED_async(positions, widths)
+        #positions = np.array(list([book[6]] for book in books))  # Each position as a list
+        #widths = np.array(list([book[7]] for book in books))     # Each width as a list
+        #flashLED_async(positions, widths)
         # Calculate center of each book
-        book_center = positions + 0.5*widths
-        if search:
-            move_async(book_center, 50)  # Move motor to center of the books if searching
+        #book_center = positions + 0.5*widths
+        #if search:
+            #move_async(book_center, 50)  # Move motor to center of the books if searching
 
     return render_template('show_books.html', books=books, all_books=all_books, search=search)
 
@@ -141,7 +141,7 @@ def show_books():
 # Route to delete a book
 @app.route('/delete_book', methods=['POST'])
 def delete():
-    clearLEDs_async()  # Turn off all LEDs before deleting
+    #clearLEDs_async()  # Turn off all LEDs before deleting
     isbn = request.form.get('isbn')
     if isbn:
         cur.execute(f"DELETE FROM books WHERE isbn = '{isbn}'")
@@ -174,9 +174,9 @@ def edit_book(isbn):
     # Fetch current book details for editing
     book = cur.execute("SELECT * FROM books WHERE isbn = ?", (isbn,)).fetchone()
 
-    if book:
+    #if book:
         # Flash LED for the book being edited
-        flashLED_async([[book[6]]], [[book[7]]])  # Call LED function with position and width
+        #flashLED_async([[book[6]]], [[book[7]]])  # Call LED function with position and width
 
     return render_template('edit_book.html', book=book)
 
