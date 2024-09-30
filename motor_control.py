@@ -7,20 +7,16 @@ import threading
 DIR = 20   # Direction GPIO Pin
 STEP = 21  # Step GPIO Pin
 ENABLE_RAIL = 16 # ENABLE_RAIL GPIO Pin
-ENABLE_EXTENDER = 13
+ENABLE_EXTENDER = 13 # ENABLE_EXTENDER GPIO PIN
+SWITCH_PIN_LEFT = 26   # Left Limit-Switch pin
+SWITCH_PIN_RIGHT = 8 # Right Limit-Switch pin
+DC_MOTOR_SWITCH = 17 # Middle Limit-Switch pin
 
 CW = 1     # Clockwise Rotation
 CCW = 0    # Counterclockwise Rotation
 SPR = 48   # Steps per Revolution (360 / 7.5)
 
-SWITCH_PIN_LEFT = 26   # Left Limit-Switch pin
-SWITCH_PIN_RIGHT = 8 # Right Limit-Switch pin
-DC_MOTOR_SWITCH = 17 # Middle Limit-Switch pin
-
 motor_position = -1 # (in steps)
-
-# DC_MOTOR_EXTEND = 13
-# DC_MOTOR_RETRACT = 18
 
 PUSH_SPEED = 1
 UNTOUCHED = GPIO.LOW
@@ -35,8 +31,6 @@ GPIO.setup(DIR, GPIO.OUT)
 GPIO.setup(STEP, GPIO.OUT)
 GPIO.setup(ENABLE_RAIL, GPIO.OUT)
 GPIO.setup(ENABLE_EXTENDER, GPIO.OUT)
-# GPIO.setup(DC_MOTOR_EXTEND, GPIO.OUT)
-# GPIO.setup(DC_MOTOR_RETRACT, GPIO.OUT)
 GPIO.setup(SWITCH_PIN_LEFT, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Pull-up for Limit-Switch
 GPIO.setup(SWITCH_PIN_RIGHT, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Pull-up for Limit-Switch
 GPIO.setup(DC_MOTOR_SWITCH, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Pull-up for Limit-Switch
@@ -53,20 +47,6 @@ def calculate_distance(position_in_cm):
     position_in_steps /= 0.961
     new_position = position_in_steps - motor_position
     return new_position
-
-# def push_book(speed):
-#     while (GPIO.input(DC_MOTOR_SWITCH) == UNTOUCHED):
-#         GPIO.output(DC_MOTOR_EXTEND, 0)
-#         GPIO.output(DC_MOTOR_RETRACT, 1)
-#     print(GPIO.input(DC_MOTOR_SWITCH))
-#     GPIO.output(DC_MOTOR_RETRACT, 0)
-#     GPIO.output(DC_MOTOR_EXTEND, 1)
-#     sleep(4.3)
-#     while GPIO.input(DC_MOTOR_SWITCH) == UNTOUCHED:
-#         GPIO.output(DC_MOTOR_EXTEND, 0)
-#         GPIO.output(DC_MOTOR_RETRACT, 1)
-#     GPIO.output(DC_MOTOR_EXTEND, 0)
-#     GPIO.output(DC_MOTOR_RETRACT, 0)
 
 def push_book(speed=1):
     GPIO.output(ENABLE_RAIL, 1)
