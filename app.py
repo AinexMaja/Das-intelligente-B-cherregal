@@ -1,7 +1,9 @@
+# sudo myenv/bin/python3 app.py
+
 import sqlite3
 import sqlite3
 from flask import Flask, jsonify, render_template, request, url_for, redirect, make_response
-from led import flashLED_async, clearLEDs_async
+from Xenia.led import flashLED_async, clearLEDs_async
 from motor_control import move_async
 import numpy as np
 

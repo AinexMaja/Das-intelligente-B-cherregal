@@ -6,7 +6,8 @@ import threading
 
 DIR = 20   # Direction GPIO Pin
 STEP = 21  # Step GPIO Pin
-ENABLE = 16 # Enable GPIO Pin
+ENABLE_RAIL = 16 # ENABLE_RAIL GPIO Pin
+ENABLE_EXTENDER = 13
 
 CW = 1     # Clockwise Rotation
 CCW = 0    # Counterclockwise Rotation
@@ -18,8 +19,8 @@ DC_MOTOR_SWITCH = 17 # Middle Limit-Switch pin
 
 motor_position = -1 # (in steps)
 
-DC_MOTOR_EXTEND = 13
-DC_MOTOR_RETRACT = 18
+# DC_MOTOR_EXTEND = 13
+# DC_MOTOR_RETRACT = 18
 
 PUSH_SPEED = 1
 UNTOUCHED = GPIO.LOW
@@ -29,9 +30,10 @@ TOUCHED = GPIO.HIGH
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(DIR, GPIO.OUT)
 GPIO.setup(STEP, GPIO.OUT)
-GPIO.setup(ENABLE, GPIO.OUT)
-GPIO.setup(DC_MOTOR_EXTEND, GPIO.OUT)
-GPIO.setup(DC_MOTOR_RETRACT, GPIO.OUT)
+GPIO.setup(ENABLE_RAIL, GPIO.OUT)
+GPIO.setup(ENABLE_EXTENDER, GPIO.OUT)
+# GPIO.setup(DC_MOTOR_EXTEND, GPIO.OUT)
+# GPIO.setup(DC_MOTOR_RETRACT, GPIO.OUT)
 GPIO.setup(SWITCH_PIN_LEFT, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Pull-up for Limit-Switch
 GPIO.setup(SWITCH_PIN_RIGHT, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Pull-up for Limit-Switch
 GPIO.setup(DC_MOTOR_SWITCH, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Pull-up for Limit-Switch
@@ -49,19 +51,34 @@ def calculate_distance(position_in_cm):
     new_position = position_in_steps - motor_position
     return new_position
 
-def push_book(speed):
-    while (GPIO.input(DC_MOTOR_SWITCH) == UNTOUCHED):
-        GPIO.output(DC_MOTOR_EXTEND, 0)
-        GPIO.output(DC_MOTOR_RETRACT, 1)
-    print(GPIO.input(DC_MOTOR_SWITCH))
-    GPIO.output(DC_MOTOR_RETRACT, 0)
-    GPIO.output(DC_MOTOR_EXTEND, 1)
-    sleep(4.3)
-    while GPIO.input(DC_MOTOR_SWITCH) == UNTOUCHED:
-        GPIO.output(DC_MOTOR_EXTEND, 0)
-        GPIO.output(DC_MOTOR_RETRACT, 1)
-    GPIO.output(DC_MOTOR_EXTEND, 0)
-    GPIO.output(DC_MOTOR_RETRACT, 0)
+# def push_book(speed):
+#     while (GPIO.input(DC_MOTOR_SWITCH) == UNTOUCHED):
+#         GPIO.output(DC_MOTOR_EXTEND, 0)
+#         GPIO.output(DC_MOTOR_RETRACT, 1)
+#     print(GPIO.input(DC_MOTOR_SWITCH))
+#     GPIO.output(DC_MOTOR_RETRACT, 0)
+#     GPIO.output(DC_MOTOR_EXTEND, 1)
+#     sleep(4.3)
+#     while GPIO.input(DC_MOTOR_SWITCH) == UNTOUCHED:
+#         GPIO.output(DC_MOTOR_EXTEND, 0)
+#         GPIO.output(DC_MOTOR_RETRACT, 1)
+#     GPIO.output(DC_MOTOR_EXTEND, 0)
+#     GPIO.output(DC_MOTOR_RETRACT, 0)
+
+def push_book(speed=1):
+    GPIO.output(ENABLE_EXTENDER, 0)
+    sleeptime = 0.05
+    for direction in [CW, CCW, CW]:
+        GPIO.output(DIR, direction)
+        for i in range(30):
+            if GPIO.input(DC_MOTOR_SWITCH) == TOUCHED:
+                break
+            GPIO.output(STEP, GPIO.HIGH)
+            sleep(sleeptime)
+            GPIO.output(STEP, GPIO.LOW)
+            sleep(sleeptime)
+    GPIO.output(ENABLE_EXTENDER, 1)
+
 
 def move(book_center, speed):
     global motor_position
@@ -77,7 +94,7 @@ def move(book_center, speed):
             distance = -distance  
             direction = CW
 
-        GPIO.output(ENABLE, 0)
+        GPIO.output(ENABLE_RAIL, 0)
         GPIO.output(DIR, direction)
 
         steps = distance
@@ -114,10 +131,11 @@ def move(book_center, speed):
             speedup_slowdown = "slowdown"
         if not calibration:
             push_book(PUSH_SPEED)
-    GPIO.output(ENABLE, 1)
+    GPIO.output(ENABLE_RAIL, 1)
 
 def move_async(book_center, speed):
     thread = threading.Thread(target=move, args=(book_center, speed))
     thread.start()
 
 move([0], 50)
+push_book()
